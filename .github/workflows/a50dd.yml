@@ -33,20 +33,20 @@ jobs:
         chmod a+x ~/bin/repo
     - name: Get variables for compilation
       run: |
-        echo "::set-output name=twrp_url::$(jq -r '.twrp_url' config.json)"
-        echo "::set-output name=twrp_branch::$(jq -r '.twrp_branch' config.json)"
-        echo "::set-output name=git_username::$(jq -r '.git_username' config.json)"
-        echo "::set-output name=git_email::$(jq -r '.git_email' config.json)"
-        echo "::set-output name=use_own_dt::$(jq -r '.use_own_dt' config.json)"
-        echo "::set-output name=dt_url::$(jq -r '.dt_url' config.json)"
-        echo "::set-output name=dt_remote::$(jq -r '.dt_remote' config.json)"
-        echo "::set-output name=dt_branch::$(jq -r '.dt_branch' config.json)"
-        echo "::set-output name=dt_path::$(jq -r '.dt_path' config.json)"
-        echo "::set-output name=device_code::$(jq -r '.device_code' config.json)"
-        echo "::set-output name=fix_product::$(jq -r '.fix_product' config.json)"
-        echo "::set-output name=fix_misscom::$(jq -r '.fix_misscom' config.json)"
-        echo "::set-output name=fix_busybox::$(jq -r '.fix_busybox' config.json)"
-        echo "::set-output name=fix_branch::$(jq -r '.fix_branch' config.json)"
+        echo "::set-output name=recovery_url::$(jq -r '.recovery_url' twrp.json)"
+        echo "::set-output name=recovery_branch::$(jq -r '.recovery_branch' twrp.json)"
+        echo "::set-output name=git_username::$(jq -r '.git_username' twrp.json)"
+        echo "::set-output name=git_email::$(jq -r '.git_email' twrp.json)"
+        echo "::set-output name=use_own_dt::$(jq -r '.use_own_dt' twrp.json)"
+        echo "::set-output name=dt_url::$(jq -r '.dt_url' twrp.json)"
+        echo "::set-output name=dt_remote::$(jq -r '.dt_remote' twrp.json)"
+        echo "::set-output name=dt_branch::$(jq -r '.dt_branch' twrp.json)"
+        echo "::set-output name=dt_path::$(jq -r '.dt_path' twrp.json)"
+        echo "::set-output name=device_code::$(jq -r '.device_code' twrp.json)"
+        echo "::set-output name=fix_product::$(jq -r '.fix_product' twrp.json)"
+        echo "::set-output name=fix_misscom::$(jq -r '.fix_misscom' twrp.json)"
+        echo "::set-output name=fix_busybox::$(jq -r '.fix_busybox' twrp.json)"
+        echo "::set-output name=fix_branch::$(jq -r '.fix_branch' twrp.json)"
         echo "::set-output name=date::$(date +%F)"
       id: var
     - name: Clone repair repository
@@ -59,7 +59,7 @@ jobs:
         echo "::set-output name=pwd::$(pwd)"
         git config --global user.name "${{ steps.var.outputs.git_username }}"
         git config --global user.email "${{ steps.var.outputs.git_email }}"
-        repo init --depth=1 -u ${{ steps.var.outputs.twrp_url }} -b ${{ steps.var.outputs.twrp_branch }}
+        repo init --depth=1 -u ${{ steps.var.outputs.recovery_url }} -b ${{ steps.var.outputs.recovery_branch }}
         mkdir .repo/local_manifests
       id: pwd
     - name: Fix missing common

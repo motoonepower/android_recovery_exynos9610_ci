@@ -1,6 +1,6 @@
 {
-  "twrp_url": "https://github.com/minimal-manifest-twrp/platform_manifest_twrp_omni",
-  "twrp_branch": "twrp-9.0",
+  "recovery_url": "https://github.com/minimal-manifest-twrp/platform_manifest_recovery_omni",
+  "recovery_branch": "twrp-9.0",
   "git_username": "TenSeventy7",
   "git_email": "corcegajovic@gmail.com",
   "use_own_dt": true,
