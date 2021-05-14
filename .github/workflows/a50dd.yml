@@ -2,7 +2,7 @@ name: Samsung Galaxy A50
 
 on:
   watch:
-    types: [started]
+    types: [workflow_dispatch,started]
 
 jobs:
   twrp:
