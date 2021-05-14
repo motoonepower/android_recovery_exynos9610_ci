@@ -84,15 +84,22 @@ jobs:
         lunch omni_${{ steps.var.outputs.device_code }}-eng
         mka recoveryimage -j$(nproc --all)
 
-    - name: Upload recovery release artifacts
+    - name: Build recovery package
+      run: |
+        mv ./out/target/product/a50dd/recovery.img ./package/recovery.img -f
+        cd ./tools/package
+        zip -9 -r ./TWRP_v3.5.2-Unofficial_a50-$(date +%s).zip ./*
+
+    - name: Upload recovery package
       uses: Hs1r1us/Release-AIO@v1.0
       env:
         GITHUB_TOKEN: ${{ secrets.RECOVERY }}
       with:
         tag_name: ci_${{ github.run_number }}
-        release_name: ci_${{ github.run_number }}-TWRP
-        body: Android Third-Party Recovery built by ${{ steps.var.outputs.git_username }}
-        asset_files: './out/target/product/a50dd/recovery.img'
+        release_name: ci_${{ github.run_number }}
+        body: Android Third-Party Recoveries built by ${{ steps.var.outputs.git_username }}
+        asset_files: './package/*.zip'
+
 
   shrp:
     name: Build SkyHawk Recovery Project (SHRP)
@@ -171,12 +178,18 @@ jobs:
         lunch omni_${{ steps.var.outputs.device_code }}-eng
         mka recoveryimage -j$(nproc --all)
 
-    - name: Upload recovery release artifacts
+    - name: Build recovery package
+      run: |
+        mv ./out/target/product/a50dd/recovery.img ./package/recovery.img -f
+        cd ./tools/package
+        zip -9 -r ./SHRP_v3.1-Unofficial_a50-$(date +%s).zip ./*
+
+    - name: Upload recovery package
       uses: Hs1r1us/Release-AIO@v1.0
       env:
         GITHUB_TOKEN: ${{ secrets.RECOVERY }}
       with:
         tag_name: ci_${{ github.run_number }}
-        release_name: ci_${{ github.run_number }}-SHRP
-        body: Android Third-Party Recovery built by ${{ steps.var.outputs.git_username }}
-        asset_files: './out/target/product/a50dd/recovery.img'
+        release_name: ci_${{ github.run_number }}
+        body: Android Third-Party Recoveries built by ${{ steps.var.outputs.git_username }}
+        asset_files: './package/*.zip'
