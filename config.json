@@ -5,12 +5,12 @@
   "git_email": "corcegajovic@gmail.com",
   "use_own_dt": true,
   "dt_url": "TenSeventy7/android_device_samsung_a50dd",
-  "dt_branch": "twrp",
+  "dt_branch": "twrp-9.0",
   "dt_remote": "github",
   "dt_path": "device/samsung/a50dd",
   "device_code": "a50dd",
   "fix_product": true,
   "fix_misscom": false,
   "fix_busybox": true,
-  "fix_branch": "twrp"
+  "fix_branch": "twrp-9.0"
 }
