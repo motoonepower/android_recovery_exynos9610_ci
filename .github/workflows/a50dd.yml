@@ -75,8 +75,8 @@ jobs:
         export USE_CCACHE="1"
         export LZMA_RAMDISK_TARGETS="recovery"
         source build/envsetup.sh
-        lunch omni_${{ steps.var.outputs.device_code }}-eng 
-        sudo mka recoveryimage -j$(nproc --all)
+        lunch omni_${{ steps.var.outputs.device_code }}-eng
+        sudo $(mka recoveryimage -j$(nproc --all))
 
     - name: Upload recovery release artifacts
       uses: Hs1r1us/Release-AIO@v1.0
@@ -156,8 +156,8 @@ jobs:
         export USE_CCACHE="1"
         export LZMA_RAMDISK_TARGETS="recovery"
         source build/envsetup.sh
-        lunch omni_${{ steps.var.outputs.device_code }}-eng 
-        sudo mka recoveryimage -j$(nproc --all)
+        lunch omni_${{ steps.var.outputs.device_code }}-eng
+        sudo $(mka recoveryimage -j$(nproc --all))
 
     - name: Upload recovery release artifacts
       uses: Hs1r1us/Release-AIO@v1.0
