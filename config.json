@@ -1,16 +1,16 @@
 {
   "twrp_url": "https://github.com/minimal-manifest-twrp/platform_manifest_twrp_omni",
-  "twrp_branch": "twrp-8.1",
-  "git_username": "135e2",
-  "git_email": "shangshangzikun@gmail.com",
+  "twrp_branch": "twrp-9.0",
+  "git_username": "TenSeventy7",
+  "git_email": "corcegajovic@gmail.com",
   "use_own_dt": true,
-  "dt_url": "gt-o/android_device_huawei_hwcan",
-  "dt_branch": "android-8.1",
+  "dt_url": "TenSeventy7/android_device_samsung_a50dd",
+  "dt_branch": "twrp",
   "dt_remote": "github",
-  "dt_path": "device/huawei/hwcan",
-  "device_code": "hwcan",
+  "dt_path": "device/samsung/a50dd",
+  "device_code": "a50dd",
   "fix_product": true,
-  "fix_misscom": true,
-  "fix_busybox": false,
-  "fix_branch": "android-8.1"
+  "fix_misscom": false,
+  "fix_busybox": true,
+  "fix_branch": "twrp"
 }

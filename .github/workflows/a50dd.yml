@@ -1,9 +1,12 @@
-name: twrp-building
+name: Samsung Galaxy A50
+
 on:
   watch:
     types: [started]
+
 jobs:
-  build:
+  twrp:
+    name: Build TeamWin Recovery Project (TWRP)
     if: github.event.repository.owner.id == github.event.sender.id
     runs-on: ubuntu-latest
     steps:
@@ -97,9 +100,9 @@ jobs:
     - name: Upload TWRP
       uses: softprops/action-gh-release@v1
       with:
-        files: workspace/out/target/product/kiwi/recovery.img
+        files: workspace/out/target/product/a50dd/recovery.img
         name: ${{ steps.var.outputs.date }} ${{ steps.var.outputs.device_code }} by ${{ steps.var.outputs.git_username }}
         tag_name: ${{ github.run_id }}
         body: Android Third-Party Recovery built by ${{ steps.var.outputs.git_username }}
       env:
-        GITHUB_TOKEN: ${{ secrets.TWRP }}
+        GITHUB_TOKEN: ${{ secrets.RECOVERY }}
