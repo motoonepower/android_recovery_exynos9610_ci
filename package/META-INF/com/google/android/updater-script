@@ -27,7 +27,7 @@ ifelse(is_mounted("/vendor"), sleep(1), mount("ext4", "EMMC", file_getprop("/tmp
 ifelse(is_mounted("/data"), sleep(1), run_program("/tmp/scripts/busybox", "mount", "/data"));
 
 ui_print("- Installing recovery.");
-package_extract_file("recovery.img", file_getprop("/tmp/frsh_install.prop", "block.boot"));
+package_extract_file("recovery.img", file_getprop("/tmp/frsh_install.prop", "block.recovery"));
 
 ui_print("   - Unmounting partitions.");
 ifelse(is_mounted(file_getprop("/tmp/frsh_install.prop", "block.system.mount")), unmount(file_getprop("/tmp/frsh_install.prop", "block.system.mount")));
