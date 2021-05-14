@@ -36,6 +36,12 @@ jobs:
         curl https://storage.googleapis.com/git-repo-downloads/repo > ~/bin/repo
         chmod a+x ~/bin/repo
 
+    - name: Setup Python environment
+      uses: actions/setup-python@v2
+      with:
+        python-version: '2.x'
+        architecture: 'x64'
+
     - name: Set variables for compilation
       id: var
       run: |
@@ -116,6 +122,12 @@ jobs:
         mkdir ~/bin
         curl https://storage.googleapis.com/git-repo-downloads/repo > ~/bin/repo
         chmod a+x ~/bin/repo
+
+    - name: Setup Python environment
+      uses: actions/setup-python@v2
+      with:
+        python-version: '2.x'
+        architecture: 'x64'
 
     - name: Set variables for compilation
       id: var
