@@ -9,7 +9,7 @@
   "dt_remote": "github",
   "dt_path": "device/samsung/a50dd",
   "device_code": "a50dd",
-  "fix_product": true,
+  "fix_product": false,
   "fix_misscom": false,
   "fix_busybox": true,
   "fix_branch": "twrp-9.0"
