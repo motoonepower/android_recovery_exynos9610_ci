@@ -87,19 +87,18 @@ jobs:
     - name: Build recovery package
       run: |
         mv ./out/target/product/a50dd/recovery.img ./package/recovery.img -f
-        cd ./tools/package
+        cd ./package
         zip -9 -r ./TWRP_v3.5.2-Unofficial_a50-$(date +%s).zip ./*
+        cd ..
+        mkdir release
+        mv ./package/TWRP*.zip ./release/ -f
 
-    - name: Upload recovery package
-      uses: Hs1r1us/Release-AIO@v1.0
-      env:
-        GITHUB_TOKEN: ${{ secrets.RECOVERY }}
+    - name: Upload release artifacts
+      uses: actions/upload-artifact@v2
       with:
-        tag_name: ci_${{ github.run_number }}
-        release_name: ci_${{ github.run_number }}
-        body: Android Third-Party Recoveries built by ${{ steps.var.outputs.git_username }}
-        asset_files: './package/*.zip'
-
+        name: twrp_release-${{ github.run_number }})
+        path: 'release'
+        if-no-files-found: error
 
   shrp:
     name: Build SkyHawk Recovery Project (SHRP)
@@ -181,15 +180,50 @@ jobs:
     - name: Build recovery package
       run: |
         mv ./out/target/product/a50dd/recovery.img ./package/recovery.img -f
-        cd ./tools/package
+        cd ./package
         zip -9 -r ./SHRP_v3.1-Unofficial_a50-$(date +%s).zip ./*
+        cd ..
+        mkdir release
+        mv ./package/SHRP*.zip ./release/ -f
 
-    - name: Upload recovery package
+    - name: Upload release artifacts
+      uses: actions/upload-artifact@v2
+      with:
+        name: shrp_release-${{ github.run_number }})
+        path: 'release'
+        if-no-files-found: error
+
+  release:
+    name: Release files and configs
+    if: always()
+    needs: [twrp, shrp]
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: true
+    steps:
+    - uses: actions/checkout@v2
+    - uses: JantHsueh/get-git-log-action@1.0
+      id: log
+      
+    - name: Merge TWRP release
+      uses: actions/download-artifact@v2
+      with:
+        name: twrp_release-${{ github.run_number }})
+        path: release
+      
+    - name: Merge SHRP release
+      uses: actions/download-artifact@v2
+      with:
+        name: shrp_release-${{ github.run_number }})
+        path: release
+        
+    - name: Upload release
       uses: Hs1r1us/Release-AIO@v1.0
       env:
-        GITHUB_TOKEN: ${{ secrets.RECOVERY }}
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
+        # The name of the tag
         tag_name: ci_${{ github.run_number }}
         release_name: ci_${{ github.run_number }}
         body: Android Third-Party Recoveries built by ${{ steps.var.outputs.git_username }}
-        asset_files: './package/*.zip'
+        asset_files: './release'
