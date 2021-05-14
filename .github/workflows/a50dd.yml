@@ -1,6 +1,8 @@
 name: Samsung Galaxy A50
 
 on:
+  push:
+    branches: [ master ]
   watch:
     types: [workflow_dispatch,started]
 
