@@ -106,4 +106,52 @@ jobs:
         body: Android Third-Party Recovery built by ${{ steps.var.outputs.git_username }}
       env:
         GITHUB_TOKEN: ${{ secrets.RECOVERY }}
-        
+        git config --global user.name "${{ steps.var.outputs.git_username }}"
+        git config --global user.email "${{ steps.var.outputs.git_email }}"
+        repo init --depth=1 -u ${{ steps.var.outputs.recovery_url }} -b ${{ steps.var.outputs.recovery_branch }}
+        mkdir .repo/local_manifests
+      id: pwd
+    - name: Fix missing common
+      if: steps.var.outputs.fix_misscom == 'true'
+      run: cp repair/omni-9.0/qcom.xml workspace/.repo/local_manifests/
+    - name: Fix busybox bug
+      if: steps.var.outputs.fix_busybox == 'true'
+      run: cp repair/omni-9.0/busybox.xml workspace/.repo/local_manifests/
+    - name: Clone device tree
+      if: steps.var.outputs.use_own_dt == 'true'
+      run: |
+        sed -i 's!dt_url!${{ steps.var.outputs.dt_url }}!g' device.xml
+        sed -i 's!dt_path!${{ steps.var.outputs.dt_path }}!g' device.xml
+        sed -i 's/dt_remote/${{ steps.var.outputs.dt_remote }}/g' device.xml
+        sed -i 's/dt_branch/${{ steps.var.outputs.dt_branch }}/g' device.xml
+        cp device.xml workspace/.repo/local_manifests/   
+    - name: Sync workspace with source
+      run: |
+        PATH=~/bin:$PATH
+        cd workspace
+        repo sync -c -j$(nproc --all) --force-sync --no-clone-bundle --no-tags
+        ls -al
+    - name: Fix cannot locate product
+      if: steps.var.outputs.fix_product == 'true'
+      run: |
+        cd ${{ steps.pwd.outputs.pwd }}/build/core
+        rm -rf product_config.mk
+        cp ${{ steps.pwd.outputs.pwd }}/../build/core/${{ steps.var.outputs.fix_branch }}/product_config.mk ${{ steps.pwd.outputs.pwd }}/build/core/product_config.mk
+    - name: Build recovery image
+      run: |
+        PATH=~/bin:$PATH
+        cd ${{ steps.pwd.outputs.pwd }}
+        tree device
+        export ALLOW_MISSING_DEPENDENCIES=true
+        source build/envsetup.sh
+        lunch omni_${{ steps.var.outputs.device_code }}-eng 
+        mka recoveryimage -j$(nproc --all)
+    - name: Upload recovery image artifacts
+      uses: softprops/action-gh-release@v1
+      with:
+        files: workspace/out/target/product/a50dd/recovery.img
+        name: ${{ steps.var.outputs.date }} ${{ steps.var.outputs.device_code }} by ${{ steps.var.outputs.git_username }}
+        tag_name: ${{ github.run_id }}
+        body: Android Third-Party Recovery built by ${{ steps.var.outputs.git_username }}
+      env:
+        GITHUB_TOKEN: ${{ secrets.RECOVERY }}
