@@ -4,7 +4,7 @@ on:
   push:
     branches: [ master ]
   watch:
-    types: [workflow_dispatch,started]
+    types: [ workflow_dispatch, started ]
 
 jobs:
   twrp:
@@ -13,22 +13,16 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@master
-    - name: Run housekeeping pre-build
-      run: |
-        docker rmi `docker images -q`
-        sudo rm -rf /usr/share/dotnet /etc/mysql /etc/php /etc/sudo apt/sources.list.d
-        sudo apt -y purge azure-cli ghc* zulu* hhvm llvm* firefox google* dotnet* powershell openjdk* mysql* php*
-        sudo apt update
-        sudo apt -y autoremove --purge
-        sudo apt clean 
+
     - name: Install and update build dependencies
       run: |
         sudo apt update
         sudo apt full-upgrade
-        sudo apt install git-core gnupg flex bison gperf build-essential zip curl zlib1g-dev gcc-multilib g++-multilib libc6-dev-i386 lib32ncurses5-dev x11proto-core-dev libx11-dev tree lib32z-dev libgl1-mesa-dev libxml2-utils xsltproc unzip jq
+        sudo apt install git-core gnupg build-essential libelf-dev kernel-package bzip2 openjdk-8-jdk lib32stdc++6 libc6-dev-i386 git flex bison gperf zip curl zlib1g-dev gcc-multilib g++-multilib lib32ncurses5-dev x11proto-core-dev libx11-dev tree lib32z-dev libgl1-mesa-dev libxml2-utils xsltproc unzip jq -y
         mkdir ~/bin
         curl https://storage.googleapis.com/git-repo-downloads/repo > ~/bin/repo
         chmod a+x ~/bin/repo
+
     - name: Set variables for compilation
       id: var
       run: |
@@ -47,59 +41,106 @@ jobs:
         echo "::set-output name=fix_busybox::$(jq -r '.fix_busybox' twrp.json)"
         echo "::set-output name=fix_branch::$(jq -r '.fix_branch' twrp.json)"
         echo "::set-output name=date::$(date +%F)"
-    - name: Setup build workspace
+
+    - name: Sync sources with source
       run: |
-        PATH=~/bin:$PATH
-        git clone https://github.com/TeamWin/buildtree_manifests.git repair/
-        mkdir workspace
-        cd workspace
-        echo "::set-output name=pwd::$(pwd)"
-        git config --global user.name "${{ steps.var.outputs.git_username }}"
-        git config --global user.email "${{ steps.var.outputs.git_email }}"
+        PATH="~/bin:$PATH"
         repo init --depth=1 -u ${{ steps.var.outputs.recovery_url }} -b ${{ steps.var.outputs.recovery_branch }}
-        mkdir .repo/local_manifests
-      id: pwd
-    - name: Fix missing common trees
-      if: steps.var.outputs.fix_misscom == 'true'
-      run: cp repair/omni-9.0/qcom.xml workspace/.repo/local_manifests/
-    - name: Fix busybox bug
-      if: steps.var.outputs.fix_busybox == 'true'
-      run: cp repair/omni-9.0/busybox.xml workspace/.repo/local_manifests/
-    - name: Fetch device tree
-      if: steps.var.outputs.use_own_dt == 'true'
-      run: |
-        sed -i 's!dt_url!${{ steps.var.outputs.dt_url }}!g' device.xml
-        sed -i 's!dt_path!${{ steps.var.outputs.dt_path }}!g' device.xml
-        sed -i 's/dt_remote/${{ steps.var.outputs.dt_remote }}/g' device.xml
-        sed -i 's/dt_branch/${{ steps.var.outputs.dt_branch }}/g' device.xml
-        cp device.xml workspace/.repo/local_manifests/   
-    - name: Sync workspace with source
-      run: |
-        PATH=~/bin:$PATH
-        cd workspace
+        git clone ${{ steps.var.outputs.dt_url }} -b ${{ steps.var.outputs.dt_branch }} ${{ steps.var.outputs.dt_path }}
         repo sync -c -j$(nproc --all) --force-sync --no-clone-bundle --no-tags
         ls -al
-    - name: Fix missing product build makefiles
-      if: steps.var.outputs.fix_product == 'true'
-      run: |
-        cd ${{ steps.pwd.outputs.pwd }}/build/core
-        rm -rf product_config.mk
-        cp ${{ steps.pwd.outputs.pwd }}/../build/core/${{ steps.var.outputs.fix_branch }}/product_config.mk ${{ steps.pwd.outputs.pwd }}/build/core/product_config.mk
+
     - name: Build recovery image
       run: |
-        PATH=~/bin:$PATH
+        PATH="~/bin:$PATH"
         cd ${{ steps.pwd.outputs.pwd }}
         tree device
         export ALLOW_MISSING_DEPENDENCIES=true
+        export TARGET_DEVICE_ALT="a50, a50dd"
+        export JAVA_HOME="/usr/lib/jvm/java-8-openjdk-amd64"
+        export TARGET_ARCH="arm64"
+        export TW_DEFAULT_LANGUAGE="en"
+        export USE_CCACHE="1"
+        export LZMA_RAMDISK_TARGETS="recovery"
         source build/envsetup.sh
         lunch omni_${{ steps.var.outputs.device_code }}-eng 
-        mka recoveryimage -j$(nproc --all)
-    - name: Upload recovery image artifacts
-      uses: softprops/action-gh-release@v1
-      with:
-        files: workspace/out/target/product/a50dd/recovery.img
-        name: ${{ steps.var.outputs.date }} ${{ steps.var.outputs.device_code }} by ${{ steps.var.outputs.git_username }}
-        tag_name: ${{ github.run_id }}
-        body: Android Third-Party Recovery built by ${{ steps.var.outputs.git_username }}
+        sudo mka recoveryimage -j$(nproc --all)
+
+    - name: Upload recovery release artifacts
+      uses: Hs1r1us/Release-AIO@v1.0
       env:
         GITHUB_TOKEN: ${{ secrets.RECOVERY }}
+      with:
+        tag_name: ci_${{ github.run_number }}
+        release_name: ci_${{ github.run_number }}-TWRP
+        body: Android Third-Party Recovery built by ${{ steps.var.outputs.git_username }}
+        asset_files: './out/target/product/a50dd/recovery.img'
+
+  shrp:
+    name: Build SkyHawk Recovery Project (SHRP)
+    if: github.event.repository.owner.id == github.event.sender.id
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@master
+
+    - name: Install and update build dependencies
+      run: |
+        sudo apt update
+        sudo apt full-upgrade
+        sudo apt install git-core gnupg build-essential libelf-dev kernel-package openjdk-8-jdk bzip2 lib32stdc++6 libc6-dev-i386 git flex bison gperf zip curl zlib1g-dev gcc-multilib g++-multilib lib32ncurses5-dev x11proto-core-dev libx11-dev tree lib32z-dev libgl1-mesa-dev libxml2-utils xsltproc unzip jq -y
+        mkdir ~/bin
+        curl https://storage.googleapis.com/git-repo-downloads/repo > ~/bin/repo
+        chmod a+x ~/bin/repo
+
+    - name: Set variables for compilation
+      id: var
+      run: |
+        echo "::set-output name=recovery_url::$(jq -r '.recovery_url' shrp.json)"
+        echo "::set-output name=recovery_branch::$(jq -r '.recovery_branch' shrp.json)"
+        echo "::set-output name=git_username::$(jq -r '.git_username' shrp.json)"
+        echo "::set-output name=git_email::$(jq -r '.git_email' shrp.json)"
+        echo "::set-output name=use_own_dt::$(jq -r '.use_own_dt' shrp.json)"
+        echo "::set-output name=dt_url::$(jq -r '.dt_url' shrp.json)"
+        echo "::set-output name=dt_remote::$(jq -r '.dt_remote' shrp.json)"
+        echo "::set-output name=dt_branch::$(jq -r '.dt_branch' shrp.json)"
+        echo "::set-output name=dt_path::$(jq -r '.dt_path' shrp.json)"
+        echo "::set-output name=device_code::$(jq -r '.device_code' shrp.json)"
+        echo "::set-output name=fix_product::$(jq -r '.fix_product' shrp.json)"
+        echo "::set-output name=fix_misscom::$(jq -r '.fix_misscom' shrp.json)"
+        echo "::set-output name=fix_busybox::$(jq -r '.fix_busybox' shrp.json)"
+        echo "::set-output name=fix_branch::$(jq -r '.fix_branch' shrp.json)"
+        echo "::set-output name=date::$(date +%F)"
+
+    - name: Sync sources with source
+      run: |
+        PATH="~/bin:$PATH"
+        repo init --depth=1 -u ${{ steps.var.outputs.recovery_url }} -b ${{ steps.var.outputs.recovery_branch }}
+        git clone ${{ steps.var.outputs.dt_url }} -b ${{ steps.var.outputs.dt_branch }} ${{ steps.var.outputs.dt_path }}
+        repo sync -c -j$(nproc --all) --force-sync --no-clone-bundle --no-tags
+        ls -al
+
+    - name: Build recovery image
+      run: |
+        PATH="~/bin:$PATH"
+        cd ${{ steps.pwd.outputs.pwd }}
+        tree device
+        export ALLOW_MISSING_DEPENDENCIES=true
+        export TARGET_DEVICE_ALT="a50, a50dd"
+        export JAVA_HOME="/usr/lib/jvm/java-8-openjdk-amd64"
+        export TARGET_ARCH="arm64"
+        export TW_DEFAULT_LANGUAGE="en"
+        export USE_CCACHE="1"
+        export LZMA_RAMDISK_TARGETS="recovery"
+        source build/envsetup.sh
+        lunch omni_${{ steps.var.outputs.device_code }}-eng 
+        sudo mka recoveryimage -j$(nproc --all)
+
+    - name: Upload recovery release artifacts
+      uses: Hs1r1us/Release-AIO@v1.0
+      env:
+        GITHUB_TOKEN: ${{ secrets.RECOVERY }}
+      with:
+        tag_name: ci_${{ github.run_number }}
+        release_name: ci_${{ github.run_number }}-SHRP
+        body: Android Third-Party Recovery built by ${{ steps.var.outputs.git_username }}
+        asset_files: './out/target/product/a50dd/recovery.img'
