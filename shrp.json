@@ -1,5 +1,5 @@
 {
-  "recovery_url": "https://github.com/SHRP/platform_manifest_recovery_omni.git",
+  "recovery_url": "https://github.com/SHRP/platform_manifest_twrp_omni.git",
   "recovery_branch": "v3_9.0",
   "git_username": "TenSeventy7",
   "git_email": "corcegajovic@gmail.com",
