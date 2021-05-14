@@ -66,7 +66,6 @@ jobs:
     - name: Build recovery image
       run: |
         PATH="~/bin:$PATH"
-        cd ${{ steps.pwd.outputs.pwd }}
         tree device
         export ALLOW_MISSING_DEPENDENCIES=true
         export TARGET_DEVICE_ALT="a50, a50dd"
@@ -148,7 +147,6 @@ jobs:
     - name: Build recovery image
       run: |
         PATH="~/bin:$PATH"
-        cd ${{ steps.pwd.outputs.pwd }}
         tree device
         export ALLOW_MISSING_DEPENDENCIES=true
         export TARGET_DEVICE_ALT="a50, a50dd"
