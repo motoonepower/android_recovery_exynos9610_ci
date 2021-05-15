@@ -82,6 +82,7 @@ jobs:
         export LZMA_RAMDISK_TARGETS="recovery"
         source build/envsetup.sh
         lunch omni_${{ steps.var.outputs.device_code }}-eng
+        mka clean
         mka recoveryimage -j$(nproc --all)
 
     - name: Build recovery package
@@ -175,6 +176,7 @@ jobs:
         export LZMA_RAMDISK_TARGETS="recovery"
         source build/envsetup.sh
         lunch omni_${{ steps.var.outputs.device_code }}-eng
+        mka clean
         mka recoveryimage -j$(nproc --all)
 
     - name: Build recovery package
