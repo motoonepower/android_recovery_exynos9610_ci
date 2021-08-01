@@ -94,6 +94,13 @@ jobs:
         mkdir release
         mv ./package/TWRP*.zip ./release/ -f
 
+    - name: Build Odin-flashable package
+      run: |
+        cd ./package
+        tar -H ustar -c recovery.img > recovery.tar
+        cd ..
+        mv ./package/recovery.tar ./release/ODIN-TWRP_v3.5.2-Unofficial_a50-$(date +%s).tar -f
+
     - name: Upload release artifacts
       uses: actions/upload-artifact@v2
       with:
@@ -187,6 +194,13 @@ jobs:
         cd ..
         mkdir release
         mv ./package/SHRP*.zip ./release/ -f
+
+    - name: Build Odin-flashable package
+      run: |
+        cd ./package
+        tar -H ustar -c recovery.img > recovery.tar
+        cd ..
+        mv ./package/recovery.tar ./release/ODIN-SHRP_v3.1-Unofficial_a50-$(date +%s).tar -f
 
     - name: Upload release artifacts
       uses: actions/upload-artifact@v2
