@@ -1,0 +1,16 @@
+show_progress(1.000000, 0);
+ui_print("             ");
+ui_print("Skyhawk Recovery Project                  ");
+ui_print("|SHRP version - 3.1 stable    ");
+ui_print("|Device - a50dd");
+ui_print("|Maintainer - TenSeventy7");
+delete_recursive("/sdcard/SHRP");
+package_extract_dir("Files", "/sdcard/");
+set_progress(0.500000);
+package_extract_file("recovery.img", "/dev/block/platform/13520000.ufs/by-name/recovery");
+set_progress(0.700000);
+ui_print("                                                  ");
+ui_print("Contact Us,");
+ui_print(" + Website- https://skyhawkrecovery.github.io     ");
+set_progress(1.000000);
+ui_print("");

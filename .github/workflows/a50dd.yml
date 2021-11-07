@@ -186,19 +186,20 @@ jobs:
 
     - name: Build recovery package
       run: |
-        mv ./out/target/product/a50dd/recovery.img ./package/recovery.img -f
-        cd ./package
-        zip -9 -r ./SHRP_v3.1-Unofficial_a50-$(date +%s).zip ./*
+        mv ./out/target/product/a50dd/recovery.img ./package_shrp/recovery.img -f
+        cd ./package_shrp
+        BUILD=$(date +%s); sed -i "s/buildnumber_here/$BUILD/" ./Files/SHRP/data/shrp_info.json
+        zip -9 -r ./SHRP_v3.1_stable-Unofficial_a50-$(date +%s).zip ./*
         cd ..
         mkdir release
-        mv ./package/SHRP*.zip ./release/ -f
+        mv ./package_shrp/SHRP*.zip ./release/ -f
 
     - name: Build Odin-flashable package
       run: |
-        cd ./package
+        cd ./package_shrp
         tar -H ustar -c recovery.img vbmeta.img > recovery.tar
         cd ..
-        mv ./package/recovery.tar ./release/ODIN-SHRP_v3.1-Unofficial_a50-$(date +%s).tar -f
+        mv ./package_shrp/recovery.tar ./release/ODIN-SHRP_v3.1_stable-Unofficial_a50-$(date +%s).tar -f
 
     - name: Upload release artifacts
       uses: actions/upload-artifact@v2
