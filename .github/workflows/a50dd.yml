@@ -87,7 +87,7 @@ jobs:
       run: |
         mv ./out/target/product/a50dd/recovery.img ./package/recovery.img -f
         cd ./package
-        zip -9 -r ./TWRP_v3.5.2-Unofficial_a50-$(date +%s).zip ./*
+        zip -9 -r ./TWRP_v3.6.0-Unofficial_a50-$(date +%s).zip ./*
         cd ..
         mkdir release
         mv ./package/TWRP*.zip ./release/ -f
@@ -97,7 +97,7 @@ jobs:
         cd ./package
         tar -H ustar -c recovery.img vbmeta.img > recovery.tar
         cd ..
-        mv ./package/recovery.tar ./release/ODIN-TWRP_v3.5.2-Unofficial_a50-$(date +%s).tar -f
+        mv ./package/recovery.tar ./release/ODIN-TWRP_v3.6.0-Unofficial_a50-$(date +%s).tar -f
 
     - name: Upload release artifacts
       uses: actions/upload-artifact@v2
