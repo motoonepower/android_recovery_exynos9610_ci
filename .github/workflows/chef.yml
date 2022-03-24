@@ -1,4 +1,4 @@
-name: Samsung Galaxy A50
+name: Motorola One Power
 
 on:
   push:
@@ -72,7 +72,7 @@ jobs:
         PATH="~/bin:$PATH"
         tree device
         export ALLOW_MISSING_DEPENDENCIES=true
-        export TARGET_DEVICE_ALT="a50, a50dd"
+        export TARGET_DEVICE_ALT="chef, chef_sprout"
         export JAVA_HOME="/usr/lib/jvm/java-8-openjdk-amd64"
         export TARGET_ARCH="arm64"
         export TW_DEFAULT_LANGUAGE="en"
@@ -91,13 +91,6 @@ jobs:
         cd ..
         mkdir release
         mv ./package/TWRP*.zip ./release/ -f
-
-    - name: Build Odin-flashable package
-      run: |
-        cd ./package
-        tar -H ustar -c recovery.img vbmeta.img > recovery.tar
-        cd ..
-        mv ./package/recovery.tar ./release/ODIN-TWRP_v3.6.0-Unofficial_a50-$(date +%s).tar -f
 
     - name: Upload release artifacts
       uses: actions/upload-artifact@v2
